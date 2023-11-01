@@ -26,19 +26,20 @@ def stage_source_mods(case, user_mods_dir,modnam):
     caseroot = case.get_value("CASEROOT")
     for usermod in glob.iglob(user_mods_dir+"/*.F90"):
         
-        if modnam =="CAM5_MODNAME": 
+        if modnam =="CAM5_nub1": 
             if "cam6" in usermod:
                 continue
             elif "cam5" in usermod:
                 safe_copy(usermod, caseroot+'/SourceMods/src.cam/')
-                os.rename(caseroot+'/SourceMods/src.cam/atm_comp_mct_cam5.F90', caseroot+'/SourceMods/src.cam/atm_comp_mct.F90')
+                os.rename(caseroot+'/SourceMods/src.cam/nudging_cam5.F90', caseroot+'/SourceMods/src.cam/nudging.F90')
+                
             else:
                 safe_copy(usermod, caseroot+'/SourceMods/src.cam/')
                 
-        if modnam =="CAM6_MODNAME": 
+        if modnam =="CAM6_nub1": 
             if "cam6" in usermod:
                 safe_copy(usermod, caseroot+'/SourceMods/src.cam/')
-                os.rename(caseroot+'/SourceMods/src.cam/atm_comp_mct_cam6.F90', caseroot+'/SourceMods/src.cam/atm_comp_mct.F90')
+                os.rename(caseroot+'/SourceMods/src.cam/nudging_cam6.F90', caseroot+'/SourceMods/src.cam/nudging.F90')
             elif "cam5" in usermod:
                 continue
             else:
