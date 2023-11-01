@@ -1922,7 +1922,7 @@ contains
      end do
      end do
      end do
-     istat=nf90_create('Cam6_dumpU.nc',NF90_CLOBBER,ncid)
+     istat=nf90_create('Cam5_dumpU.nc',NF90_CLOBBER,ncid)
      istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
      istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
      istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
@@ -1943,7 +1943,7 @@ contains
      end do
      end do
      end do
-     istat=nf90_create('Cam6_dumpV.nc',NF90_CLOBBER,ncid)
+     istat=nf90_create('Cam5_dumpV.nc',NF90_CLOBBER,ncid)
      istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
      istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
      istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
@@ -1964,7 +1964,7 @@ contains
      end do
      end do
      end do
-     istat=nf90_create('Cam6_dumpQ.nc',NF90_CLOBBER,ncid)
+     istat=nf90_create('Cam5_dumpQ.nc',NF90_CLOBBER,ncid)
      istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
      istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
      istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
@@ -1985,7 +1985,7 @@ contains
      end do
      end do
      end do
-     istat=nf90_create('Cam6_dumpT.nc',NF90_CLOBBER,ncid)
+     istat=nf90_create('Cam5_dumpT.nc',NF90_CLOBBER,ncid)
      istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
      istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
      istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
