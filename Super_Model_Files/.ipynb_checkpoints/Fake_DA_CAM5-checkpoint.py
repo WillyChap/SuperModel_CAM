@@ -12,7 +12,6 @@ import xarray as xr
 import numpy as np
 import filecmp
 
-
 # to_do:
 # - make a "current_time" file in the run directories.
 # - make a HARD reset file ... which brings everything back to 1979
@@ -21,15 +20,20 @@ import filecmp
 # - - reset current_time.txt in both /scratch/mod/run/ directories
 # - - remove files *.nc from pseudoobs_V2 
 
-#Probably smart to do: 
+# Probably smart to do: 
 # create a new pseudoobs_dir with each new git instance named after the models.
 
 
 class MaxAttemptsExceeded(Exception):
     pass
 
-def are_files_identical(file1_path, file2_path):
-    return filecmp.cmp(file1_path, file2_path)
+def are_files_identical(file1_path, file2_path): #WEC-v2
+    with open(file1_path, 'rb') as file1, open(file2_path, 'rb') as file2:
+        
+        content1 = file1.read()
+        content2 = file2.read()
+
+    return content1 == content2
 
 def inc_hours(current_time,inc_amount):
     print('time in current file: ', current_time)
@@ -53,8 +57,8 @@ def wait_for_files(file1_path, file2_path):
     print('searching for 2: ', file2_path)
 
     while attempts < max_attempts:
-        if os.path.exists(file1_path) and os.path.exists(file2_path):
-            time.sleep(20) 
+        if os.path.exists(file1_path) and os.path.exists(file2_path) and are_files_identical(file1_path, file2_path):
+            time.sleep(10) 
             print(f"Both files '{file1_path}' and '{file2_path}' exist!")
             return True
         attempts += 1
@@ -201,24 +205,46 @@ def _main_func(description):
     ###################################
     #cam5 block
     ###################################
-    Pause_init_file = '/path/to/scratch/directory/CAM5_MODNAME/run/PAUSE_INIT'
-    
-    if os.path.exists(Pause_init_file):
-        print("Path exists. Exiting the program.")
-        os.remove(Pause_init_file)
-        #os.remove('/path/to/scratch/directory/CAM5_MODNAME/run/PAUSE')
-        #sys.exit(0)  # Exit with a success status code
-    else:
-        print("Path does not exist. Continuing with the program.")
-
     
     """
     This block is used to read the current_time_file 
     and the increment the file by X hours (defined as variable inc_int).
     It then defines a CAM restart file to wait to arrive
     """
+    curr_time_cam5_str = '/path/to/scratch/directory/CAM5_MODNAME/run/curr_time_file_CAM5.txt' #WEC-v2
+    curr_time_cam6_str = '/path/to/scratch/directory/CAM6_MODNAME/run/curr_time_file_CAM6.txt' #WEC-v2
+    Pause_init_file = '/path/to/scratch/directory/CAM5_MODNAME/run/PAUSE_INIT' #WEC-v2
+    run_dir_path_cam5 = '/path/to/scratch/directory/CAM5_MODNAME/run/'
+    run_dir_path_cam6 = '/path/to/scratch/directory/CAM6_MODNAME/run/'
     
-    curr_time_cam5_str = '/path/to/scratch/directory/CAM5_MODNAME/run/current_time_file.txt'
+    if os.path.exists(Pause_init_file):
+        print("Path exists. Exiting the program.")
+        os.remove(Pause_init_file)
+        os.remove('/path/to/scratch/directory/CAM5_MODNAME/run/PAUSE')
+        os.remove(run_dir_path_cam5 + 'Cam5_dumpV.nc')
+        os.remove(run_dir_path_cam5 + 'Cam5_dumpU.nc')
+        os.remove(run_dir_path_cam5 + 'Cam5_dumpT.nc')
+        os.remove(run_dir_path_cam5 + 'Cam5_dumpQ.nc')
+        os.remove(curr_time_cam5_str)
+        sys.exit(0)  # Exit with a success status code
+    else:
+        print("Path does not exist. Continuing with the program.")
+
+    #wait for the files to arrive... raise exception if they don't. #WEC-v2 .... this needs to be moved up before reading the curr_time_file_XXX.txt files...
+    print('....searching for files....')    
+    try:
+        found = wait_for_files(curr_time_cam5_str,curr_time_cam6_str)
+        print(found)
+    except MaxAttemptsExceeded as e:
+        print(e)
+        sys.exit(1)
+    
+    if not are_files_identical(curr_time_cam5_str,curr_time_cam6_str):
+        print('FILES ARE NOT IDENTICAL BROKEN BROKEN BROKEN!!!!!!!!!')
+    else:
+        print('The TWO RUNS ARE IN THE SAME TEMPORAL SPOT')
+        
+    #curr_time_cam5_str = '/path/to/scratch/directory/CAM5_MODNAME/run/curr_time_file_CAM5.txt' #WEC-v2
     run_dir_path_cam5 = '/path/to/scratch/directory/CAM5_MODNAME/run/'
     
     with open(curr_time_cam5_str, 'r') as file:
@@ -232,12 +258,6 @@ def _main_func(description):
     #we are waiting for this file!! 
     rpoint_wait_cam5 = run_dir_path_cam5 + 'CAM5_MODNAME.cam.h1.'+inc_str_cam5+'.nc'
     
-    for dat_path in sorted(glob.glob(run_dir_path_cam5+'/rpointer*')):
-        with open(dat_path, 'r') as file:
-            data = file.read().replace('\n', '')
-        rpoint_in_run = data.split('.')[-2]
-        
-    print('cam5 rpointer.atm is currently at: ', rpoint_in_run)
     ###################################
     ###################################
 
@@ -249,7 +269,6 @@ def _main_func(description):
     and the increment the file by X hours (defined as variable inc_int).
     It then defines a CAM restart file to wait to arrive
     """
-    curr_time_cam6_str = '/path/to/scratch/directory/CAM6_MODNAME/run/current_time_file.txt'
     run_dir_path_cam6 = '/path/to/scratch/directory/CAM6_MODNAME/run/'
 
     
@@ -263,32 +282,10 @@ def _main_func(description):
     
     #we are waiting for this file!! 
     rpoint_wait_cam6 = run_dir_path_cam6 + 'CAM6_MODNAME.cam.h1.'+inc_str_cam6+'.nc'
-    
-    for dat_path in sorted(glob.glob(run_dir_path_cam6+'/rpointer*')):
-        with open(dat_path, 'r') as file:
-            data = file.read().replace('\n', '')
-        rpoint_in_run = data.split('.')[-2]
-    print('cam6 rpointer.atm is currently at: ', rpoint_in_run)
-    
-    ###################################
-    ###################################
-   
-    #wait for the files to arrive... raise exception if they don't.
-    print('....searching for files....')    
-    try:
-        found = wait_for_files(rpoint_wait_cam5,rpoint_wait_cam6)
-        print(found)
-    except MaxAttemptsExceeded as e:
-        print(e)
-        sys.exit(1)
-        
-        
+         
     """
     If the files are found.. continue on...
-    """  
-    
-    
-    
+    """
     
     if found:
         

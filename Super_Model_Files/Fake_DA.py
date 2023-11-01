@@ -9,7 +9,9 @@ import shutil
 import time
 import glob
 import xarray as xr
+import numpy as np
 import filecmp
+
 
 
 # to_do:
@@ -27,8 +29,13 @@ import filecmp
 class MaxAttemptsExceeded(Exception):
     pass
 
-def are_files_identical(file1_path, file2_path):
-    return filecmp.cmp(file1_path, file2_path)
+def are_files_identical(file1_path, file2_path): #WEC-v2
+    with open(file1_path, 'rb') as file1, open(file2_path, 'rb') as file2:
+        
+        content1 = file1.read()
+        content2 = file2.read()
+
+    return content1 == content2
 
 def inc_hours(current_time,inc_amount):
     print('time in current file: ', current_time)
@@ -52,8 +59,8 @@ def wait_for_files(file1_path, file2_path):
     print('searching for 2: ', file2_path)
 
     while attempts < max_attempts:
-        if os.path.exists(file1_path) and os.path.exists(file2_path):
-            time.sleep(20) 
+        if os.path.exists(file1_path) and os.path.exists(file2_path) and are_files_identical(file1_path, file2_path):
+            time.sleep(10) 
             print(f"Both files '{file1_path}' and '{file2_path}' exist!")
             return True
         attempts += 1
@@ -63,20 +70,24 @@ def wait_for_files(file1_path, file2_path):
     sys.exit(1)
     return False
 
-def average_two_files(ps_fp,file1,file2,inc_str):
+def average_two_files(ps_fp,file1,file2,file3,file4,file5,file6,file7,file8,inc_str): #WEC-v2
     
     DS_f1 = xr.open_dataset(file1)
     DS_f2 = xr.open_dataset(file2)
+    DS_f3 = xr.open_dataset(file3)
+    DS_f4 = xr.open_dataset(file4)
+    DS_f5 = xr.open_dataset(file5)
+    DS_f6 = xr.open_dataset(file6)
+    DS_f7 = xr.open_dataset(file7)
+    DS_f8 = xr.open_dataset(file8)
     
     DS_template = xr.open_dataset(ps_fp+'/Template_Nudging_File.nc',decode_times=False)
     
     DS_template['U'][:] =  ((DS_f1['U'] + DS_f2['U'])/2).values.squeeze()
-    DS_template['V'][:] =  ((DS_f1['V'] + DS_f2['V'])/2).values.squeeze()
-    
-    
-    DS_template['T'][:] =  ((DS_f1['T'] + DS_f2['T'])/2).values
-    DS_template['Q'][:] =  ((DS_f1['Q'] + DS_f2['Q'])/2).values
-    DS_template['PS'][:] =  ((DS_f1['PS'] + DS_f2['PS'])/2).values
+    DS_template['V'][:] =  ((DS_f3['V'] + DS_f4['V'])/2).values.squeeze()
+    DS_template['T'][:] =  ((DS_f5['T'] + DS_f6['T'])/2).values
+    DS_template['Q'][:] =  ((DS_f7['Q'] + DS_f8['Q'])/2).values
+    DS_template['PS'][:] =  ((DS_template['PS'] + DS_template['PS'])/2).values
  
     fout = ps_fp+'/test_pseudoobs_UVT.h1.'+inc_str+'.nc'
     DS_template.to_netcdf(fout,format="NETCDF3_CLASSIC",mode='w')
@@ -188,6 +199,7 @@ def update_current_time(curr_time_str,inc_str):
     
     return curr_time,inc_str
 
+
 def _main_func(description):
     
     inc_int = 6
@@ -204,20 +216,38 @@ def _main_func(description):
     It then defines a CAM restart file to wait to arrive
     """
     
-    Pause_init_file = '/path/to/scratch/directory/CAM6_MODNAME/run/PAUSE_INIT'
+    curr_time_cam5_str = '/path/to/scratch/directory/CAM5_MODNAME/run/curr_time_file_CAM5.txt' #WEC-v2
+    curr_time_cam6_str = '/path/to/scratch/directory/CAM6_MODNAME/run/curr_time_file_CAM6.txt' #WEC-v2
+    Pause_init_file = '/path/to/scratch/directory/CAM6_MODNAME/run/PAUSE_INIT' #WEC-v2
+    run_dir_path_cam5 = '/path/to/scratch/directory/CAM5_MODNAME/run/'
+    run_dir_path_cam6 = '/path/to/scratch/directory/CAM6_MODNAME/run/'
     
     if os.path.exists(Pause_init_file):
         print("Path exists. Exiting the program.")
         os.remove(Pause_init_file)
-        #os.remove('/path/to/scratch/directory/CAM6_MODNAME/run/PAUSE')
-        #sys.exit(0)  # Exit with a success status code
+        os.remove(run_dir_path_cam6 + 'Cam6_dumpV.nc')
+        os.remove(run_dir_path_cam6 + 'Cam6_dumpU.nc')
+        os.remove(run_dir_path_cam6 + 'Cam6_dumpT.nc')
+        os.remove(run_dir_path_cam6 + 'Cam6_dumpQ.nc')
+        os.remove(curr_time_cam6_str)
+        os.remove('/path/to/scratch/directory/CAM6_MODNAME/run/PAUSE')
+        sys.exit(0)  # Exit with a success status code
     else:
         print("Path does not exist. Continuing with the program.")
-
+        
+    #wait for the files to arrive... raise exception if they don't. #WEC-v2 .... this needs to be moved up before reading the curr_time_file_XXX.txt files...
+    print('....searching for files....')    
+    try:
+        found = wait_for_files(curr_time_cam5_str,curr_time_cam6_str)
+        print(found)
+    except MaxAttemptsExceeded as e:
+        print(e)
+        sys.exit(1)
     
-    
-    curr_time_cam5_str = '/path/to/scratch/directory/CAM5_MODNAME/run/current_time_file.txt'
-    run_dir_path_cam5 = '/path/to/scratch/directory/CAM5_MODNAME/run/'
+    if not are_files_identical(curr_time_cam5_str,curr_time_cam6_str):
+        print('FILES ARE NOT IDENTICAL BROKEN BROKEN BROKEN!!!!!!!!!')
+    else:
+        print('The TWO RUNS ARE IN THE SAME TEMPORAL SPOT')
     
     with open(curr_time_cam5_str, 'r') as file:
         data = file.read().replace('\n', '')
@@ -230,12 +260,6 @@ def _main_func(description):
     #we are waiting for this file!! 
     rpoint_wait_cam5 = run_dir_path_cam5 + 'CAM5_MODNAME.cam.h1.'+inc_str_cam5+'.nc'
     
-    for dat_path in sorted(glob.glob(run_dir_path_cam5+'/rpointer*')):
-        with open(dat_path, 'r') as file:
-            data = file.read().replace('\n', '')
-        rpoint_in_run = data.split('.')[-2]
-        
-    print('cam5 rpointer.atm is currently at: ', rpoint_in_run)
     ###################################
     ###################################
 
@@ -247,10 +271,7 @@ def _main_func(description):
     and the increment the file by X hours (defined as variable inc_int).
     It then defines a CAM restart file to wait to arrive
     """
-    curr_time_cam6_str = '/path/to/scratch/directory/CAM6_MODNAME/run/current_time_file.txt'
-    run_dir_path_cam6 = '/path/to/scratch/directory/CAM6_MODNAME/run/'
 
-    
     with open(curr_time_cam6_str, 'r') as file:
         data = file.read().replace('\n', '')
     print('current time file cam6:',data)
@@ -262,25 +283,10 @@ def _main_func(description):
     #we are waiting for this file!! 
     rpoint_wait_cam6 = run_dir_path_cam6 + 'CAM6_MODNAME.cam.h1.'+inc_str_cam6+'.nc'
     
-    for dat_path in sorted(glob.glob(run_dir_path_cam6+'/rpointer*')):
-        with open(dat_path, 'r') as file:
-            data = file.read().replace('\n', '')
-        rpoint_in_run = data.split('.')[-2]
-    print('cam6 rpointer.atm is currently at: ', rpoint_in_run)
     
     ###################################
     ###################################
-   
-    #wait for the files to arrive... raise exception if they don't.
-    print('....searching for files....')    
-    try:
-        found = wait_for_files(rpoint_wait_cam5,rpoint_wait_cam6)
-        print(found)
-    except MaxAttemptsExceeded as e:
-        print(e)
-        sys.exit(1)
-        
-        
+
     """
     If the files are found.. continue on...
     """  
@@ -291,27 +297,36 @@ def _main_func(description):
         h1_cam5 = rpoint_wait_cam5.replace(".cam.h1.",".cam.h1.")
         h1_cam6 = rpoint_wait_cam6.replace(".cam.h1.",".cam.h1.")
         
-        print('h1_file5: ',h1_cam5)
-        print('h1_file6: ',h1_cam6)
-        print('inc_str_cam6: ',inc_str_cam6)
-        print('inc_str_cam5: ',inc_str_cam5)
+        Tcam6 = run_dir_path_cam6 + 'Cam6_dumpT.nc'#WEC-v2
+        Tcam5 = run_dir_path_cam5 + 'Cam5_dumpT.nc'#WEC-v2
+        Ucam6 = run_dir_path_cam6 + 'Cam6_dumpU.nc'#WEC-v2
+        Ucam5 = run_dir_path_cam5 + 'Cam5_dumpU.nc'#WEC-v2
+        Vcam6 = run_dir_path_cam6 + 'Cam6_dumpV.nc'#WEC-v2
+        Vcam5 = run_dir_path_cam5 + 'Cam5_dumpV.nc'#WEC-v2
+        Qcam6 = run_dir_path_cam6 + 'Cam6_dumpQ.nc'#WEC-v2
+        Qcam5 = run_dir_path_cam5 + 'Cam5_dumpQ.nc'#WEC-v2
         
-        bb = average_two_files(psuedo_obs_dir,h1_cam5,h1_cam6,inc_str_cam6)
+        print('h1_file5: ',Tcam5)#WEC-v2
+        print('h1_file6: ',Tcam6)#WEC-v2
+        print('inc_str_cam6: ',inc_str_cam6)#WEC-v2
+        print('inc_str_cam5: ',inc_str_cam5) #WEC-v2
+        
+        bb = average_two_files(psuedo_obs_dir,Ucam5,Ucam6,Vcam5,Vcam6,Tcam5,Tcam6,Qcam5,Qcam6,curr_time_cam6) #WEC-v2
         print(bb)
-        the_goods_are_good = check_nudging_file(psuedo_obs_dir,h1_cam5,h1_cam6,inc_str_cam6) #check the nudging file for errors
+        the_goods_are_good = check_nudging_file(psuedo_obs_dir,h1_cam5,h1_cam6,curr_time_cam6) #check the nudging file for errors #WEC-v2
         count_avg=0
         
         while count_avg < 50 and not the_goods_are_good:
             print('had to remake the average nudging file'+str(count_avg))
             time.sleep(5) 
-            bb = average_two_files(psuedo_obs_dir,h1_cam5,h1_cam6,inc_str_cam6)
-            the_goods_are_good = check_nudging_file(psuedo_obs_dir,h1_cam5,h1_cam6,inc_str_cam6) #check the nudging file for errors
+            bb = average_two_files(psuedo_obs_dir,Ucam5,Ucam6,Vcam5,Vcam6,Tcam5,Tcam6,Qcam5,Qcam6,curr_time_cam6) #WEC-v2
+            the_goods_are_good = check_nudging_file(psuedo_obs_dir,h1_cam5,h1_cam6,curr_time_cam6) #check the nudging file for errors #WEC-v2
             count_avg+=1
        
         add_dummy_path(psuedo_obs_dir,inc_int) #needs testing.
         #archive_old_files(psuedo_obs_dir,store_combined_path)
-        print(update_current_time(curr_time_cam6_str,inc_str_cam6))
-        print(update_current_time(curr_time_cam5_str,inc_str_cam5))
+        #print(update_current_time(curr_time_cam6_str,inc_str_cam6))#WEC-v2
+        #print(update_current_time(curr_time_cam5_str,inc_str_cam5))#WEC-v2
         print('To Do:')
         print('3) remove the dummy path in change the current_time_file.txt')
         print('4) add dummy time to the pseudo obs folder')
