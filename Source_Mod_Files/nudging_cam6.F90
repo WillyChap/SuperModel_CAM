@@ -1890,6 +1890,7 @@ contains
    !-------------
    character(len=*),intent(in):: anal_file
 
+
    ! Local values
    !-------------
    integer lev
@@ -1902,6 +1903,9 @@ contains
    real(r8) Lon_anal(Nudge_nlon)
    real(r8) Xtrans(Nudge_nlon,Nudge_nlev,Nudge_nlat)
    integer  nn,Nindex
+   !++WEC
+   character(100) :: time_file
+   integer :: unier 
    
 #ifdef DUMPFIELD
    integer londimid, latdimid, levdimid, rhvarid
@@ -1992,13 +1996,22 @@ contains
      istat=nf90_close(ncid)
      write(*,*) 'Finished T dumping field.'
      
+     
+     time_file = 'curr_time_file.txt'
+     ! Open the file for writing
+     open(unier, file=time_file, status='replace', action='write')
+     ! Write a line to the file
+     write(unier, '(A)') trim(anal_file)
+     ! Close the file
+     close(unier)
+     
      write(*,*) 'PAUSERESUME: Pause at nudging write'
      open(unit=999,file='PAUSE')
      close(999)
      lpause = .true.
      
-     write(*,*) 'PAUSERESUME: Call ./remove_pause.py'
-     call system('./remove_pause.py')
+     write(*,*) 'PAUSERESUME: Call ./Fake_DA.py'
+     call system('./Fake_DA.py')
      do while ( lpause )
         call sleepqq(100) !! sleep 0.1 sec
         inquire(file='PAUSE',exist=lpause)
