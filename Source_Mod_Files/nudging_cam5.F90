@@ -1997,7 +1997,7 @@ contains
      write(*,*) 'Finished T dumping field.'
      
      
-     time_file = 'curr_time_file.txt'
+     time_file = 'curr_time_file_CAM5.txt'
      ! Open the file for writing
      open(unier, file=time_file, status='replace', action='write')
      ! Write a line to the file
