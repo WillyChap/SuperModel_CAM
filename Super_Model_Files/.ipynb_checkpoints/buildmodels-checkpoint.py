@@ -26,7 +26,7 @@ def stage_source_mods(case, user_mods_dir,modnam):
     caseroot = case.get_value("CASEROOT")
     for usermod in glob.iglob(user_mods_dir+"/*.F90"):
         
-        if modnam =="CAM5_nub1": 
+        if modnam =="CAM5_MODNAME": 
             if "cam6" in usermod:
                 continue
             elif "cam5" in usermod:
@@ -36,7 +36,7 @@ def stage_source_mods(case, user_mods_dir,modnam):
             else:
                 safe_copy(usermod, caseroot+'/SourceMods/src.cam/')
                 
-        if modnam =="CAM6_nub1": 
+        if modnam =="CAM6_MODNAME": 
             if "cam6" in usermod:
                 safe_copy(usermod, caseroot+'/SourceMods/src.cam/')
                 os.rename(caseroot+'/SourceMods/src.cam/nudging_cam6.F90', caseroot+'/SourceMods/src.cam/nudging.F90')
@@ -83,7 +83,7 @@ def per_run_case_updates(case, user_mods_dir, rundir,modnam):
     for usermod in glob.iglob(user_mods_dir+"/user*"):
         safe_copy(usermod, caseroot)
     case.case_setup()
-    
+    print('...staging source mods...')
     stage_source_mods(case, user_mods_dir,modnam)
 
 
