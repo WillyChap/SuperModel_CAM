@@ -10,6 +10,8 @@ import time
 import glob
 import xarray as xr
 import numpy as np
+import filecmp
+
 
 # to_do:
 # - make a "current_time" file in the run directories.
@@ -19,12 +21,15 @@ import numpy as np
 # - - reset current_time.txt in both /scratch/mod/run/ directories
 # - - remove files *.nc from pseudoobs_V2 
 
-# Probably smart to do: 
+#Probably smart to do: 
 # create a new pseudoobs_dir with each new git instance named after the models.
 
 
 class MaxAttemptsExceeded(Exception):
     pass
+
+def are_files_identical(file1_path, file2_path):
+    return filecmp.cmp(file1_path, file2_path)
 
 def inc_hours(current_time,inc_amount):
     print('time in current file: ', current_time)
