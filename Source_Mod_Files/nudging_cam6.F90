@@ -1,3 +1,6 @@
+#define DUMPFIELD 
+#define PAUSERESUME 
+
 module nudging
 !=====================================================================
 !
@@ -196,7 +199,11 @@ module nudging
   !------------------
   use shr_kind_mod,   only:r8=>SHR_KIND_R8,cs=>SHR_KIND_CS,cl=>SHR_KIND_CL
   use time_manager,   only:timemgr_time_ge,timemgr_time_inc,get_curr_date,get_step_size
+#ifdef DUMPFIELD
+  use phys_grid   ,   only:scatter_field_to_chunk, gather_chunk_to_field
+#else
   use phys_grid   ,   only:scatter_field_to_chunk
+#endif
   use cam_abortutils, only:endrun
   use spmd_utils  ,   only:masterproc
   use cam_logfile ,   only:iulog
@@ -1869,9 +1876,16 @@ contains
    !                 U,V,T,Q, and PS values and then distribute
    !                 the values to all of the chunks.
    !===============================================================
+#ifdef DUMPFIELD
+   use ppgrid ,only: pcols,pver,begchunk,endchunk
+#else
    use ppgrid ,only: pver,begchunk
+#endif
    use netcdf
-
+   
+#ifdef PAUSERESUME 
+    logical :: lpause 
+#endif
    ! Arguments
    !-------------
    character(len=*),intent(in):: anal_file
@@ -1888,6 +1902,111 @@ contains
    real(r8) Lon_anal(Nudge_nlon)
    real(r8) Xtrans(Nudge_nlon,Nudge_nlev,Nudge_nlat)
    integer  nn,Nindex
+   
+#ifdef DUMPFIELD
+   integer londimid, latdimid, levdimid, rhvarid
+
+   ! Dump temperature field to disk and stop run +++++WEC
+   !------------------------------------------------------------------------
+   
+   call gather_chunk_to_field(1,Nudge_nlev,1,Nudge_nlon,Model_U,Xtrans)
+   if(masterproc) then
+     do ilat=1,Nudge_nlat
+     do ilev=1,Nudge_nlev
+     do ilon=1,Nudge_nlon
+       Xanal(ilon,ilat,ilev)=Xtrans(ilon,ilev,ilat)
+     end do
+     end do
+     end do
+     istat=nf90_create('Cam6_dumpU.nc',NF90_CLOBBER,ncid)
+     istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
+     istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
+     istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
+     istat=nf90_def_var(ncid, "U", nf90_double, &
+                      (/ londimid, latdimid, levdimid /), rhvarid)
+     istat=nf90_enddef(ncid)
+     istat=nf90_put_var(ncid, rhvarid, Xanal) 
+     istat=nf90_close(ncid)
+     write(*,*) 'Finished U dumping field.'
+   endif
+   
+   call gather_chunk_to_field(1,Nudge_nlev,1,Nudge_nlon,Model_V,Xtrans)
+   if(masterproc) then
+     do ilat=1,Nudge_nlat
+     do ilev=1,Nudge_nlev
+     do ilon=1,Nudge_nlon
+       Xanal(ilon,ilat,ilev)=Xtrans(ilon,ilev,ilat)
+     end do
+     end do
+     end do
+     istat=nf90_create('Cam6_dumpV.nc',NF90_CLOBBER,ncid)
+     istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
+     istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
+     istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
+     istat=nf90_def_var(ncid, "V", nf90_double, &
+                      (/ londimid, latdimid, levdimid /), rhvarid)
+     istat=nf90_enddef(ncid)
+     istat=nf90_put_var(ncid, rhvarid, Xanal) 
+     istat=nf90_close(ncid)
+     write(*,*) 'Finished V dumping field.'
+   endif
+   
+   call gather_chunk_to_field(1,Nudge_nlev,1,Nudge_nlon,Model_Q,Xtrans)
+   if(masterproc) then
+     do ilat=1,Nudge_nlat
+     do ilev=1,Nudge_nlev
+     do ilon=1,Nudge_nlon
+       Xanal(ilon,ilat,ilev)=Xtrans(ilon,ilev,ilat)
+     end do
+     end do
+     end do
+     istat=nf90_create('Cam6_dumpQ.nc',NF90_CLOBBER,ncid)
+     istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
+     istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
+     istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
+     istat=nf90_def_var(ncid, "Q", nf90_double, &
+                      (/ londimid, latdimid, levdimid /), rhvarid)
+     istat=nf90_enddef(ncid)
+     istat=nf90_put_var(ncid, rhvarid, Xanal) 
+     istat=nf90_close(ncid)
+     write(*,*) 'Finished Q dumping field.'
+   endif
+   
+   call gather_chunk_to_field(1,Nudge_nlev,1,Nudge_nlon,Model_T,Xtrans)
+   if(masterproc) then
+     do ilat=1,Nudge_nlat
+     do ilev=1,Nudge_nlev
+     do ilon=1,Nudge_nlon
+       Xanal(ilon,ilat,ilev)=Xtrans(ilon,ilev,ilat)
+     end do
+     end do
+     end do
+     istat=nf90_create('Cam6_dumpT.nc',NF90_CLOBBER,ncid)
+     istat=nf90_def_dim(ncid, "lon",Nudge_nlon , londimid)
+     istat=nf90_def_dim(ncid, "lat",Nudge_nlat , latdimid)
+     istat=nf90_def_dim(ncid, "lev",Nudge_nlev , levdimid)
+     istat=nf90_def_var(ncid, "T", nf90_double, &
+                      (/ londimid, latdimid, levdimid /), rhvarid)
+     istat=nf90_enddef(ncid)
+     istat=nf90_put_var(ncid, rhvarid, Xanal) 
+     istat=nf90_close(ncid)
+     write(*,*) 'Finished T dumping field.'
+     
+     write(*,*) 'PAUSERESUME: Pause at nudging write'
+     open(unit=999,file='PAUSE')
+     close(999)
+     lpause = .true.
+     
+     write(*,*) 'PAUSERESUME: Call ./remove_pause.py'
+     call system('./remove_pause.py')
+     do while ( lpause )
+        call sleepqq(100) !! sleep 0.1 sec
+        inquire(file='PAUSE',exist=lpause)
+        
+     end do
+     write(*,*) 'PAUSERESUME: Pause finished, continue run'
+   endif
+#endif
 
    ! Rotate Nudge_ObsInd() indices, then check the existence of the analyses 
    ! file; broadcast the updated indices and file status to all the other MPI nodes. 
