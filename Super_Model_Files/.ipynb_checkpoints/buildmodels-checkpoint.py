@@ -111,7 +111,7 @@ def build_base_case(baseroot, basecasename,res, compset, overwrite,
                 case.set_value("NTASKS", 124)
                 
             if basecasename =="CAM6_MODNAME":
-                case.set_value("NTASKS", 344)
+                case.set_value("NTASKS", 324)
             
             case.set_value("DOUT_S",False)
             case.set_value("STOP_OPTION","nhours")
