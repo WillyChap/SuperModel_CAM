@@ -14,8 +14,8 @@ import xarray as xr
 #####################################################
 ####### Mininum USER DEFINED VARIABLES ##############
 #####################################################
-Mod_Cam5_Name = 'CAM5_prb1' #modify
-Mod_Cam6_Name = 'CAM6_prb1' #modify
+Mod_Cam5_Name = 'CAM5_nub0001' #modify
+Mod_Cam6_Name = 'CAM6_nub0001' #modify
 
 path_to_work_directory = "/glade/work/wchapman"  #modify
 path_to_scratch_directory = "/glade/scratch/wchapman" #modify

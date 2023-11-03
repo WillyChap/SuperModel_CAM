@@ -60,11 +60,11 @@ def wait_for_files(file1_path, file2_path):
 
     while attempts < max_attempts:
         if os.path.exists(file1_path) and os.path.exists(file2_path) and are_files_identical(file1_path, file2_path):
-            time.sleep(10) 
+            time.sleep(1) 
             print(f"Both files '{file1_path}' and '{file2_path}' exist!")
             return True
         attempts += 1
-        time.sleep(15)  # Wait for 5 seconds
+        time.sleep(2)  # Wait for 5 seconds
 
     raise MaxAttemptsExceeded("Maximum number of attempts reached. Files not found.... it must have crashed, try restarting.")
     sys.exit(1)
@@ -318,7 +318,7 @@ def _main_func(description):
         
         while count_avg < 50 and not the_goods_are_good:
             print('had to remake the average nudging file'+str(count_avg))
-            time.sleep(5) 
+            time.sleep(1) 
             bb = average_two_files(psuedo_obs_dir,Ucam5,Ucam6,Vcam5,Vcam6,Tcam5,Tcam6,Qcam5,Qcam6,curr_time_cam6) #WEC-v2
             the_goods_are_good = check_nudging_file(psuedo_obs_dir,h1_cam5,h1_cam6,curr_time_cam6) #check the nudging file for errors #WEC-v2
             count_avg+=1
@@ -331,7 +331,7 @@ def _main_func(description):
         print('3) remove the dummy path in change the current_time_file.txt')
         print('4) add dummy time to the pseudo obs folder')
         print('5) stage the source mod files for build... MAYBE DONE..TEST')
-        time.sleep(5) 
+        time.sleep(1) 
         os.remove('/path/to/scratch/directory/CAM6_MODNAME/run/PAUSE')
     
     return True

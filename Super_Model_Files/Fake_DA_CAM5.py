@@ -50,7 +50,7 @@ def inc_hours(current_time,inc_amount):
     return inc_time_string 
 
 def wait_for_files(file1_path, file2_path):
-    max_attempts = 30
+    max_attempts = 100
     attempts = 0
     
     print('searching for 1: ', file1_path)
@@ -58,11 +58,11 @@ def wait_for_files(file1_path, file2_path):
 
     while attempts < max_attempts:
         if os.path.exists(file1_path) and os.path.exists(file2_path) and are_files_identical(file1_path, file2_path):
-            time.sleep(10) 
+            time.sleep(1) 
             print(f"Both files '{file1_path}' and '{file2_path}' exist!")
             return True
         attempts += 1
-        time.sleep(15)  # Wait for 5 seconds
+        time.sleep(2)  # Wait for 5 seconds
 
     raise MaxAttemptsExceeded("Maximum number of attempts reached. Files not found.... it must have crashed, try restarting.")
     sys.exit(1)
@@ -70,7 +70,7 @@ def wait_for_files(file1_path, file2_path):
 
 
 def wait_for_nudging_files(file1_path, file2_path):
-    max_attempts = 50
+    max_attempts = 100
     attempts = 0
     
     print('searching for 1: ', file1_path)
@@ -78,11 +78,11 @@ def wait_for_nudging_files(file1_path, file2_path):
 
     while attempts < max_attempts:
         if os.path.exists(file1_path) and os.path.exists(file2_path):
-            time.sleep(20) 
+            time.sleep(5) 
             print(f"Both files '{file1_path}' and '{file2_path}' exist!")
             return True
         attempts += 1
-        time.sleep(15)  # Wait for 5 seconds
+        time.sleep(1)  # Wait for 5 seconds
 
     raise MaxAttemptsExceeded("Maximum number of attempts reached. Files not found.... it must have crashed, try restarting.")
     sys.exit(1)
@@ -304,7 +304,7 @@ def _main_func(description):
         print('file2_wait: ',File2_wait)
         
         wait_for_nudging_files(File1_wait,File2_wait)
-        time.sleep(5) 
+        time.sleep(1) 
         os.remove('/path/to/scratch/directory/CAM5_MODNAME/run/PAUSE')
     
     return True

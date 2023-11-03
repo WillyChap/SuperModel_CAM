@@ -4,7 +4,7 @@
 #PBS -l walltime=12:00:00
 #PBS -q regular
 #PBS -j oe
-#PBS -l select=8:ncpus=36:mpiprocs=36
+#PBS -l select=12:ncpus=36:mpiprocs=36
 
 module purge
 module load ncarenv/1.3 intel/19.0.5 ncarcompilers/0.5.0 mpt/2.22 netcdf/4.7.3 nco/4.9.5 ncl/6.6.2 python/2.7.16
@@ -20,7 +20,7 @@ touch /path/to/scratch/directory/CAM6_MODNAME/run/PAUSE_INIT
 DIRS=(/path/to/this/directory/CAM5_MODNAME  /path/to/this/directory/CAM6_MODNAME)
 
 # Settings
-PPA=(72 216)   # Change to be number of tasks for each job
+PPA=(216 216)   # Change to be number of tasks for each job
 
 # Run applications
 LP=0

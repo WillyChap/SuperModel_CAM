@@ -108,7 +108,7 @@ def build_base_case(baseroot, basecasename,res, compset, overwrite,
 
             if basecasename =="CAM5_MODNAME": 
                 case.set_value("CAM_CONFIG_OPTS","-phys cam5 -nlev 32")
-                case.set_value("NTASKS", 72)
+                case.set_value("NTASKS", 216)
                 
             if basecasename =="CAM6_MODNAME":
                 case.set_value("NTASKS", 216)
