@@ -1547,7 +1547,7 @@ contains
     if((Nudge_Model).and.(Nudge_ON)) then
       !write(iulog,*) 'Taquito Nudge_Loc_PhysOut=',Nudge_Loc_PhysOut,'Nudge Model = ',Nudge_Model,'Nudge First Step = '
       if(First_Nudge) then
-          write(iulog,*) 'Torta Nudge First Step = ',First_Nudge
+          !write(iulog,*) 'Torta Nudge First Step = ',First_Nudge
           call nudging_timestep_tend(state,ptend)
           call outfld( 'UTEND_NDG', ptend%u, pcols, lchnk)
           call outfld( 'VTEND_NDG', ptend%v, pcols, lchnk)
