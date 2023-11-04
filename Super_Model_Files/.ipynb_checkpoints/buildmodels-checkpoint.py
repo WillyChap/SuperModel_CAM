@@ -170,7 +170,7 @@ def update_namelist(baseroot,basecasename,psuedo_obs_dir,inc_int):
          " Nudge_Qcoef =0.0",
          " Nudge_Force_Opt = 1",
          " Nudge_Times_Per_Day = 4",
-         " Model_Times_Per_Day = 48",
+         " Model_Times_Per_Day = 4",
          " Nudge_TimeScale_Opt = 0",
          " Nudge_Vwin_Lindex = 6.",
          " Nudge_Vwin_Ldelta = 0.001",
