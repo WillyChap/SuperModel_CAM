@@ -117,10 +117,10 @@ def build_base_case(baseroot, basecasename,res, compset, overwrite,
             case.set_value("STOP_OPTION","nhours")
             case.set_value("STOP_N", 6900420)
             case.set_value("JOB_QUEUE", "regular")
-            case.set_value("ROF_NCPL", "$ATM_NCPL")
-            case.set_value("GLC_NCPL", "$ATM_NCPL")
+            #case.set_value("ROF_NCPL", "$ATM_NCPL")
+            #case.set_value("GLC_NCPL", "$ATM_NCPL")
             case.set_value("NTHRDS", 1)
-            case.set_value("GLC_NCPL", "$ATM_NCPL")
+            #case.set_value("GLC_NCPL", "$ATM_NCPL")
             case.set_value("BATCH_SYSTEM","none")
             #see https://github.com/ESMCI/cime/issues/3209
             
