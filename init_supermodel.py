@@ -18,13 +18,13 @@ Mod_Cam5_Name = 'CAM5_nub0001' #modify
 Mod_Cam6_Name = 'CAM6_nub0001' #modify
 
 path_to_work_directory = "/glade/work/wchapman"  #modify
-path_to_scratch_directory = "/glade/scratch/wchapman" #modify
+path_to_scratch_directory = "/glade/derecho/scratch/wchapman" #modify
 project_code="P54048000" #modify
 path_to_this_directory = os.getcwd()
 
 
 job_wallclock_run = "12:00:00" #modify [less than 12:00:00]
-JOBS_QUEUE = "regular" #modify [regular,economy,premium]]
+JOBS_QUEUE = "main" #modify [regular,economy,premium]]
 N_Hours = 48 #modify number of hours to run the supermodel....
 #####################################################
 ####### Mininum USER DEFINED VARIABLES ##############

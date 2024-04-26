@@ -100,7 +100,7 @@ def build_base_case(baseroot, basecasename,res, compset, overwrite,
             
             case.create(os.path.basename(caseroot), cesmroot, compset, res,
                         run_unsupported=True, answer="r",walltime="12:00:00",
-                        user_mods_dir=user_mods_dir, pecount=pecount, project=project,machine_name="cheyenne")
+                        user_mods_dir=user_mods_dir, pecount=pecount, project=project,machine_name="derecho")
             
             # make sure that changing the casename will not affect these variables
          
