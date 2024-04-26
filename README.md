@@ -6,7 +6,7 @@ Clone this to your home directory ... and run with a bash shell please
 
 # To Run: 
 FIRST:
-- **$ source ./setup.sh** ... this will set up your bash enviroment and set the CESM_ROOT (currently Francine's sandbox)
+- **$ source ./setup.sh** ... this will set up your bash enviroment and set the CESM_ROOT (currently hardcoded to Wills Directory)
 
 NEXT:
 
