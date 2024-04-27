@@ -4,20 +4,20 @@
 Right now this only works on the NCAR machines, if there is enough community interest, I would be happy to work on porting it to other systems. 
 Clone this to your home directory ... and run with a bash shell please
 
-# To Run: 
-FIRST:
+# To SET UP the supermodel: 
+<ins>FIRST:</ins>
 ```
 $ source ./setup.sh
 ```
 - this will set up your bash enviroment and set the CESM_ROOT (currently hardcoded to Wills Directory)
 
-NEXT:
+<ins>NEXT:</ins>
 
 **IMPORTANT**: Change the settings in the file **"init_supermodel.py"** which are specified with the "#modify" comment and run this file 
 ```
 $ ./init_supermodel.py
 ```
-THEN: 
+<ins>THEN:</ins>
 
 a few python files should be written in the current git directory. Please run:
 
@@ -27,7 +27,7 @@ $ ./buildmodels.py
 
 This will create two model instances of CAM5 and CAM6 that have the names you specified in the **setup.sh** script, as well as the necessary source mods and the fake Data Assimilation scripts additionally, folders are created in your work directory and scratch directory which do the data handling. 
 
-## Finally. 
+# To Submit the super model! . 
 
 With the update to Derecho we had to do one more trick thing: 
 
@@ -51,11 +51,15 @@ In this instance we have coupled CAM5 and CAM6 in order exchange state informati
 THE PBS FILE (submit_models.sh) and the settings in the buildmodels.py have to match! So if you change Job_WALLCLOCK_TIME in one, then you must change it in the other)!!!
 
 ## IF you reach the end of a run and want to keep going or the model crashes
-
+```
+./Restart_Model.py
+```
 Run ***"./Restart_Model.py"*** and everything should be Gucci, submit the models again
 
 ## IF YOU WANT TO ERASE AND START OVER: 
-
+```
+./HARD_Restart.py
+```
 Run ***"./HARD_Restart.py"*** but warning this erases data and starts back in 1979
 
 
