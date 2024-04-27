@@ -6,6 +6,9 @@
 #PBS -j oe
 #PBS -l select=13:ncpus=36:mpiprocs=36
 
+module load conda
+conda activate npl-2023b
+
 touch /path/to/scratch/directory/CAM5_MODNAME/run/PAUSE_INIT
 touch /path/to/scratch/directory/CAM6_MODNAME/run/PAUSE_INIT
 
