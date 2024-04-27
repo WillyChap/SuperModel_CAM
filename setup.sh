@@ -9,5 +9,5 @@ PATH=$(echo "$PATH" | sed -e 's,/glade\/u\/home\/wchapman\/anaconda/[^:]\+\(:\|$
 module load conda
 conda activate npl-2023b
 
-export CESM_ROOT=/glade/work/wchapman/supermodel_derecho/
+export CESM_ROOT=/glade/work/wchapman/supermodel_derecho_conda/
 chmod +x init_supermodel.py 
