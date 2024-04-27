@@ -9,7 +9,6 @@ import datetime
 import shutil
 import time
 import glob
-import xarray as xr
 
 #####################################################
 ####### Mininum USER DEFINED VARIABLES ##############
