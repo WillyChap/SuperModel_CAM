@@ -6,23 +6,40 @@ Clone this to your home directory ... and run with a bash shell please
 
 # To Run: 
 FIRST:
-- **$ source ./setup.sh** ... this will set up your bash enviroment and set the CESM_ROOT (currently hardcoded to Wills Directory)
+```
+$ source ./setup.sh
+```
+- this will set up your bash enviroment and set the CESM_ROOT (currently hardcoded to Wills Directory)
 
 NEXT:
 
-Change the settings in the file **"init_supermodel.py"** which are specified with the "#modify" comment and run this file (***$ ./init_supermodel.py***)
-
+**IMPORTANT**: Change the settings in the file **"init_supermodel.py"** which are specified with the "#modify" comment and run this file 
+```
+$ ./init_supermodel.py
+```
 THEN: 
 
 a few python files should be written in the current git directory. Please run:
 
-- ***$ ./buildmodels.py***
+```
+$ ./buildmodels.py
+```
 
 This will create two model instances of CAM5 and CAM6 that have the names you specified in the **setup.sh** script, as well as the necessary source mods and the fake Data Assimilation scripts additionally, folders are created in your work directory and scratch directory which do the data handling. 
 
 ## Finally. 
 
-To submit both jobs on one active queue: **qsub ./submit_models.sh**
+With the update to Derecho we had to do one more trick thing: 
+
+```
+module load conda
+conda activate npl-2023b
+```
+
+To submit both jobs on one active queue: 
+```
+qsub ./submit_models.sh
+```
 
 ## What is a supermodel? 
 
