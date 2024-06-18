@@ -1,7 +1,7 @@
 # A NCAR CAM5/CAM6 SuperModel
 
 
-Right now this only works on the NCAR machines, if there is enough community interest, I would be happy to work on porting it to other systems. 
+Right now this only works on the NCAR machines and the Norwegian Machines (Betzy), if there is enough community interest, I would be happy to work on porting it to other systems. 
 Clone this to your home directory ... and run with a bash shell please
 
 # To SET UP the supermodel: 
