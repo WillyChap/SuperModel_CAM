@@ -417,12 +417,10 @@ def vert_ip_average(file1,file2,file3,file4,file5,file6,file7,file8):
     T_ave = ((0.5 * T_cam5_ERA + 0.5 * T_cam6_ERA))
 
 
-    U_cam5_array = U_cam5_ERA
-    V_cam5_array = V_cam5_ERA
-    T_cam5_array = T_cam5_ERA
-    U_ave = U_cam6_ERA
-    V_ave = V_cam6_ERA
-    T_ave = T_cam6_ERA
+    U_cam5_array = U_ave
+    V_cam5_array = V_ave
+    T_cam5_array = T_ave
+    
 
 
     for lat in np.arange(0,241):
