@@ -28,12 +28,23 @@ class MaxAttemptsExceeded(Exception):
     pass
 
 def are_files_identical(file1_path, file2_path): #WEC-v2
-    with open(file1_path, 'rb') as file1, open(file2_path, 'rb') as file2:
-        
+
+    with open(file1_path, 'r') as file1, open(file2_path, 'r') as file2:
+
         content1 = file1.read()
         content2 = file2.read()
 
-    return content1 == content2
+        if len(content1) == len(content2):
+            time_cam5 = content1.split('.')[-2]
+            time_cam6 = content2.split('.')[-2]
+            print('same time: ',time_cam5,time_cam6)
+        else:
+            time_cam5 = 1
+            time_cam6 = 2
+            print('file not complete')
+
+    return time_cam5 == time_cam6
+    #return content1 == content2
 
 def inc_hours(current_time,inc_amount):
     print('time in current file: ', current_time)
@@ -50,7 +61,7 @@ def inc_hours(current_time,inc_amount):
     return inc_time_string 
 
 def wait_for_files(file1_path, file2_path):
-    max_attempts = 100
+    max_attempts = 1000
     attempts = 0
     
     print('searching for 1: ', file1_path)
@@ -70,7 +81,7 @@ def wait_for_files(file1_path, file2_path):
 
 
 def wait_for_nudging_files(file1_path, file2_path):
-    max_attempts = 100
+    max_attempts = 1000
     attempts = 0
     
     print('searching for 1: ', file1_path)
@@ -200,7 +211,8 @@ def _main_func(description):
     
     inc_int = 6
     store_combined_path = '/path/to/scratch/directory/store_super_cam5_cam6/'
-    psuedo_obs_dir = '/path/to/work/directory/pseudoobs_CAM5_MODNAME_CAM6_MODNAME/'
+    psuedo_obs_dir = '/path/to/scratch/directory/../pseudoobs/pseudoobs_CAM5_MODNAME/'
+    psuedo_obs_dir = '/path/to/scratch/directory/../pseudoobs/pseudoobs_CAM6_MODNAME/'
 
     ###################################
     #cam5 block
@@ -298,7 +310,7 @@ def _main_func(description):
         print('inc_str_cam6: ',inc_str_cam6)
         print('inc_str_cam5: ',inc_str_cam5)
         
-        File1_wait = average_two_files_name(psuedo_obs_dir,inc_str_cam6)
+        File1_wait = average_two_files_name(psuedo_obs_dir_cam6,inc_str_cam6)
         print('file1_wait: ',File1_wait)
         File2_wait = add_dummy_path_name(File1_wait,inc_int) #needs testing.
         print('file2_wait: ',File2_wait)

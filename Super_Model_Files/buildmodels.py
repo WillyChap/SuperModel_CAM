@@ -100,29 +100,28 @@ def build_base_case(baseroot, basecasename,res, compset, overwrite,
             
             case.create(os.path.basename(caseroot), cesmroot, compset, res,
                         run_unsupported=True, answer="r",walltime="12:00:00",
-                        user_mods_dir=user_mods_dir, pecount=pecount, project=project,machine_name="derecho")
+                        user_mods_dir=user_mods_dir, pecount=pecount, project=project,machine_name="betzy")
             
             # make sure that changing the casename will not affect these variables
          
             #xml change all of our shit
 
             if basecasename =="CAM5_MODNAME": 
-                case.set_value("CAM_CONFIG_OPTS","-phys cam5 -nlev 32")
-                case.set_value("NTASKS", 124)
+                case.set_value("CAM_CONFIG_OPTS","-phys cam5 -nlev 26")
+              #  case.set_value("NTASKS", 124)
                 
-            if basecasename =="CAM6_MODNAME":
-                case.set_value("NTASKS", 324)
-
-            case.set_value("USE_CONDA",True)
+            #if basecasename =="CAM6_MODNAME":
+             #   case.set_value("NTASKS", 324)
+            
             case.set_value("DOUT_S",False)
             case.set_value("STOP_OPTION","nhours")
             case.set_value("STOP_N", 6900420)
-            case.set_value("JOB_QUEUE", "regular")
+            #case.set_value("JOB_QUEUE", "regular")
             #case.set_value("ROF_NCPL", "$ATM_NCPL")
             #case.set_value("GLC_NCPL", "$ATM_NCPL")
-            case.set_value("NTHRDS", 1)
+            #case.set_value("NTHRDS", 1)
             #case.set_value("GLC_NCPL", "$ATM_NCPL")
-            case.set_value("BATCH_SYSTEM","none")
+            #case.set_value("BATCH_SYSTEM","none")
             #see https://github.com/ESMCI/cime/issues/3209
             
             #user_namelist_cam:
@@ -203,22 +202,25 @@ def make_findtime(baseroot,basecasename,rundir):
 
 def _main_func(description):
     inc_int=6
-    psuedo_obs_dir='/path/to/work/directory/pseudoobs_CAM5_MODNAME_CAM6_MODNAME' #replace path !!!must be your work dir!!!
-    create_directory(psuedo_obs_dir)
-    safe_copy('/path/to/this/directory/Pseudo_Obs_Files/Template_Nudging_File.nc',psuedo_obs_dir) #replace path git
+    psuedo_obs_dir_cam5='/path/to/scratch/directory/../pseudoobs/pseudoobs_CAM5_MODNAME' #replace path !!!must be your work dir!!!
+    create_directory(psuedo_obs_dir_cam5)
+    safe_copy('/path/to/this/directory/Pseudo_Obs_Files/Template_Nudging_File_CAM5.nc',psuedo_obs_dir_cam5) #replace path git
     
+    psuedo_obs_dir_cam6='/path/to/scratch/directory/../pseudoobs/pseudoobs_CAM6_MODNAME' #replace path !!!must be your work dir!!!
+    create_directory(psuedo_obs_dir_cam6)
+    safe_copy('/path/to/this/directory/Pseudo_Obs_Files/Template_Nudging_File_CAM6.nc',psuedo_obs_dir_cam6) #replace path git
     archive_dir = '/path/to/scratch/directory/store_super_cam5_cam6' #replace path !!!must be your scratch dir!!!
     create_directory(archive_dir)
     
     #one -- CAM5
     baseroot="/path/to/this/directory" #replace path
     basecasename5="CAM5_MODNAME"
-    res = "f09_g16"
+    res = "f19_g16"
     compset= "HIST_CAM50_CLM50%SP_CICE%PRES_DOCN%DOM_MOSART_SGLC_SWAV"
     user_mods_dir="/path/to/this/directory/Source_Mod_Files" #replace path to git directory
     overwrite = True
     caseroot = build_base_case(baseroot, basecasename5, res,
-                            compset, overwrite, user_mods_dir,psuedo_obs_dir,project="P54048000",inc_int=inc_int) #replace path /project code
+                            compset, overwrite, user_mods_dir,psuedo_obs_dir_cam5,project="P54048000",inc_int=inc_int) #replace path /project code
     
     #two -- CAM6
     baseroot="/path/to/this/directory" #replace path
@@ -228,7 +230,7 @@ def _main_func(description):
     user_mods_dir="/path/to/this/directory/Source_Mod_Files" #replace path
     overwrite = True
     caseroot = build_base_case(baseroot, basecasename6, res,
-                            compset, overwrite, user_mods_dir,psuedo_obs_dir,project="P54048000",inc_int=inc_int) #replace path /project code
+                            compset, overwrite, user_mods_dir,psuedo_obs_dir_cam6,project="P54048000",inc_int=inc_int) #replace path /project code
     
     #to do! 
     #replace all of the file paths in the "Fake_DA.py" path and write it to this directory. 
@@ -236,6 +238,13 @@ def _main_func(description):
     shutil.copy2(baseroot+'/Fake_DA.py', '/path/to/scratch/directory/CAM6_MODNAME/run/')
     shutil.copy2(baseroot+'/Fake_DA_CAM5.py', '/path/to/scratch/directory/CAM5_MODNAME/run/')
 
+    shutil.copy2(baseroot+'/grid_CAM5.txt', '/path/to/scratch/directory/CAM6_MODNAME/run/')
+    shutil.copy2(baseroot+'/grid_CAM6.txt', '/path/to/scratch/directory/CAM6_MODNAME/run/')
+    shutil.copy2(baseroot+'/grid_ERA5.txt', '/path/to/scratch/directory/CAM6_MODNAME/run/')
+    shutil.copy2(baseroot+'/weights_CAM5toERA.nc', '/path/to/scratch/directory/CAM6_MODNAME/run/')
+    shutil.copy2(baseroot+'/weights_CAM6toERA.nc', '/path/to/scratch/directory/CAM6_MODNAME/run/')
+    shutil.copy2(baseroot+'/weights_ERAtoCAM5.nc', '/path/to/scratch/directory/CAM6_MODNAME/run/')
+    shutil.copy2(baseroot+'/weights_ERAtoCAM6.nc', '/path/to/scratch/directory/CAM6_MODNAME/run/')
     
 
 if __name__ == "__main__":
