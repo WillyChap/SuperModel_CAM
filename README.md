@@ -1,3 +1,6 @@
+[![DOI](https://zenodo.org/badge/699459300.svg)](https://zenodo.org/doi/10.5281/zenodo.12577788)
+
+
 # A NCAR CAM5/CAM6 SuperModel
 
 
