@@ -36,7 +36,7 @@ With the update to Derecho we had to do one more trick thing:
 
 ```
 module load conda
-conda activate npl-2023b
+conda activate /glade/work/wchapman/miniconda3.2/envs/cesmML3.10gpuPD
 ```
 
 To submit both jobs on one active queue: 
