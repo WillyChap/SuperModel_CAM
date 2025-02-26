@@ -14,5 +14,5 @@
 module load conda
 conda activate /path/to/your/supermodel_env/
 
-export CESM_ROOT=/path/to/your/cesm2.1.5/ROOT/
+export CESM_ROOT=/path/to/your/release-cesm2.1.5/ROOT/
 chmod +x init_supermodel.py 
