@@ -1,68 +1,214 @@
 [![DOI](https://zenodo.org/badge/699459300.svg)](https://zenodo.org/doi/10.5281/zenodo.12577788)
 
 
-# A NCAR CAM5/CAM6 SuperModel
+# A NSF-NCAR CAM5/CAM6 SuperModel  
 
+This repository provides instructions for running a **CESM2.1.5-based CAM5/CAM6 supermodel**, which couples two versions of CAM to exchange state information dynamically during simulation. The supermodel runs on **PBS-based HPC clusters** (e.g., NSF-NCAR Derecho, Betzy) and can be adapted to other systems with the necessary dependencies installed.
 
-Right now this only works on the NCAR machines and the Norwegian Machines (Betzy), if there is enough community interest, I would be happy to work on porting it to other systems. 
-Clone this to your home directory ... and run with a bash shell please
+If you're unfamiliar with **supermodeling**, see [our paper](https://journals.ametsoc.org/view/journals/bams/aop/BAMS-D-22-0070.1/BAMS-D-22-0070.1.xml) for an introduction to the approach and its applications.
 
-# To SET UP the supermodel: 
-<ins>FIRST:</ins>
+## NOTE:
+If you are running on the NSF-NCAR Derecho Machine, you can skip steps to set up the casper env and the cesm2.1.5 installation. Comments in the setup.sh file will allow you to directly run on Derecho. 
+
+---
+
+## **System Requirements & Prerequisites**  
+
+This supermodel requires:  
+
+- **A PBS-based HPC cluster**  
+- **A working CESM2.1.5 installation** ([CESM2.1.5 Setup Guide](https://escomp.github.io/CESM/release-cesm2/))  
+- **A Conda environment** with required dependencies (see below)  
+
+---
+
+## **Setting Up the Supermodel**  
+
+### **1. Create & Activate the Conda Environment**  
+Before running the supermodel, create a Conda environment using the provided YAML file:  
+
+```bash
+conda env create -f sumo_CAM56_env.yml
 ```
-$ source ./setup.sh
-```
-- this will set up your bash enviroment and set the CESM_ROOT (currently hardcoded to Wills Directory)
 
-<ins>NEXT:</ins>
+Activate the environment:  
 
-**IMPORTANT**: Change the settings in the file **"init_supermodel.py"** which are specified with the "#modify" comment and run this file 
-```
-$ ./init_supermodel.py
-```
-<ins>THEN:</ins>
-
-a few python files should be written in the current git directory. Please run:
-
-```
-$ ./buildmodels.py
+```bash
+conda activate supermodel_env
 ```
 
-This will create two model instances of CAM5 and CAM6 that have the names you specified in the **setup.sh** script, as well as the necessary source mods and the fake Data Assimilation scripts additionally, folders are created in your work directory and scratch directory which do the data handling. 
+### **2. Install CESM2.1.5 on Your HPC**  
 
-# To Submit the supermodel:
+Clone and set up CESM2.1.5:  
 
-With the update to Derecho we had to do one more trick thing: 
-
+```bash
+git clone -b release-cesm2.1.5 https://github.com/ESCOMP/CESM.git my_cesm_sandbox
+cd my_cesm_sandbox
+git checkout release-cesm2.1.5
+./manage_externals/checkout_externals
 ```
+
+Make sure CESM2.1.5 compiles successfully on your machine. If you are using a **different HPC system**, consult its documentation for any machine-specific settings.
+
+---
+
+## **Configuring the Supermodel**  
+
+### **3. Edit and Run `setup.sh`**  
+
+Edit `setup.sh` to specify paths to your Conda environment and CESM root directory. Example:  
+
+```bash
 module load conda
-conda activate /glade/work/wchapman/conda-envs/supermodel_cam
+conda activate /path/to/your/supermodel_env/
+
+export CESM_ROOT=/path/to/your/release-cesm2.1.5/ROOT/
+chmod +x init_supermodel.py
 ```
 
-To submit both jobs on one active queue: 
+Then, source the script to apply the changes:  
+
+```bash
+source ./setup.sh
 ```
+
+This will:  
+- Set up the environment variables  
+- Define the CESM root directory  
+- Ensure `init_supermodel.py` is executable  
+
+### **4. Modify `init_supermodel.py`**  
+
+Edit the following parameters inside `init_supermodel.py`:  
+
+```python
+# Modify model names
+Mod_Cam5_Name = 'CAM5_nub0001'  #modify
+Mod_Cam6_Name = 'CAM6_nub0001'  #modify
+
+# Modify paths for your system
+path_to_work_directory = "/path/to/work/directory"  #modify
+path_to_scratch_directory = "/path/to/scratch/directory" #modify
+
+# Project code for job submission
+project_code = "XXXXX"  #modify
+
+# Job settings
+job_wallclock_run = "12:00:00"  #modify [must be ≤ 12:00:00]
+JOBS_QUEUE = "main"  #modify [e.g., "regular", "economy", "premium"]
+N_Hours = 48  #modify [total runtime in hours]
+```
+
+Then, run the script to initialize the supermodel:  
+
+```bash
+./init_supermodel.py
+```
+
+This will generate configuration files needed for model execution.
+
+### **5. Build the Model Instances**  
+
+After initialization, run:  
+
+```bash
+./buildmodels.py
+```
+
+This will:  
+- Create two model instances (CAM5 and CAM6) with the specified names  
+- Generate necessary source modifications  
+- Set up data handling directories in the work and scratch directories  
+
+---
+
+## **Running the Supermodel**  
+
+### **6. Submitting the Supermodel Job**  
+
+Activate your Conda environment before submitting:  
+
+```bash
+module load conda
+conda activate /path/to/your/supermodel_env/
+```
+
+Submit the models using the PBS job scheduler:  
+
+```bash
 qsub ./submit_models.sh
 ```
 
-## What is a supermodel? 
+**Important:** Ensure that job wallclock time and queue settings in `submit_models.sh` match those in `buildmodels.py` to prevent scheduling conflicts.
 
-[See our paper](https://journals.ametsoc.org/view/journals/bams/aop/BAMS-D-22-0070.1/BAMS-D-22-0070.1.xml). The modeling of weather and climate has been a success story. The skill of forecasts continues to improve and model biases continue to decrease. Combining the output of multiple models has further improved forecast skill and reduced biases. But are we exploiting the full capacity of state-of-the-art models in making forecasts and projections? Supermodeling is a recent step forward in the multi-model ensemble approach. Instead of combining model output after the simulations are completed, in a supermodel individual models exchange state information as they run, influencing each other’s behavior. By learning the optimal parameters that determine how models influence each other based on past observations, model errors are reduced at an early stage before they propagate into larger scales and affect other regions and variables. The models synchronize on a common solution that through learning remains closer to the observed evolution. Effectively a new dynamical system has been created, a supermodel, that optimally combines the strengths of the constituent models. The supermodel approach has the potential to rapidly improve current state-of-the-art weather forecasts and climate predictions. In this paper we introduce supermodeling, demonstrate its potential in examples of various complexity and discuss learning strategies. We conclude with a discussion of remaining challenges for a successful application of supermodeling in the context of state-of-the-art models. The supermodeling approach is not limited to the modeling of weather and climate, but can be applied to improve the prediction capabilities of any complex system, for which a set of different models exist. 
+---
 
-In this instance we have coupled CAM5 and CAM6 in order exchange state information. Happy supermodeling! 
+## **Managing Supermodel Runs**  
 
-## A BIG NOTE: 
-THE PBS FILE (submit_models.sh) and the settings in the buildmodels.py have to match! So if you change Job_WALLCLOCK_TIME in one, then you must change it in the other)!!!
+### **Restarting a Run**  
 
-## IF you reach the end of a run and want to keep going or the model crashes
-```
+If the supermodel run finishes and you need to extend it (or if it crashes), use:  
+
+```bash
 ./Restart_Model.py
 ```
-Run ***"./Restart_Model.py"*** and everything should be Gucci, submit the models again
 
-## IF YOU WANT TO ERASE AND START OVER: 
-```
+This will restart the model from the last available checkpoint.
+
+### **Erasing and Starting Over**  
+
+To delete all run data and restart from the initial conditions:  
+
+```bash
 ./HARD_Restart.py
 ```
-Run ***"./HARD_Restart.py"*** but warning this erases data and starts back in 1979
 
+**Warning:** This will erase all previous output and restart from 1979.
 
+---
+
+## **Troubleshooting & Common Issues**  
+
+### **1. Environment Issues**  
+
+#### **Issue: Conda environment not found**  
+**Solution:** Ensure the correct Conda environment is loaded before running any scripts:  
+```bash
+conda activate /path/to/your/supermodel_env/
+```
+Run `conda info --envs` to verify that the environment is correctly installed.
+
+#### **Issue: `init_supermodel.py` or `buildmodels.py` fails to execute**  
+**Solution:** Ensure the scripts are executable:  
+```bash
+chmod +x init_supermodel.py buildmodels.py
+```
+
+### **2. Model Compilation Errors**  
+
+#### **Issue: CESM2.1.5 fails to compile**  
+**Solution:**  
+- Ensure all dependencies for CESM2.1.5 are installed  
+- Check the official [CESM2.1.5 setup guide](https://escomp.github.io/CESM/release-cesm2/) for machine-specific fixes  
+- Verify that `CESM_ROOT` is correctly set in `setup.sh`  
+
+### **3. Job Scheduling Issues**  
+
+#### **Issue: Job does not start after submission**  
+**Solution:**  
+- Check the job queue status using:  
+  ```bash
+  qstat -u $USER
+  ```
+- Ensure that the queue name in `submit_models.sh` matches what’s available on your system.  
+
+#### **Issue: Model crashes due to exceeded wallclock time**  
+**Solution:**  
+- Increase `job_wallclock_run` in both `init_supermodel.py` and `submit_models.sh`  
+- Reduce the simulation length per run (`N_Hours`)  
+
+---
+
+## **Contributing & Support**  
+
+For issues or contributions, open a GitHub issue or contact the maintainers. Happy supermodeling!
