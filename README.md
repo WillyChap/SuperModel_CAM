@@ -1,6 +1,5 @@
 [![DOI](https://zenodo.org/badge/699459300.svg)](https://zenodo.org/doi/10.5281/zenodo.12577788)
 
-
 # A NSF-NCAR CAM5/CAM6 SuperModel  
 
 This repository provides instructions for running a **CESM2.1.5-based CAM5/CAM6 supermodel**, which couples two versions of CAM to exchange state information dynamically during simulation. The supermodel runs on **PBS-based HPC clusters** (e.g., NSF-NCAR Derecho, Betzy) and can be adapted to other systems with the necessary dependencies installed.
@@ -208,6 +207,12 @@ chmod +x init_supermodel.py buildmodels.py
 - Reduce the simulation length per run (`N_Hours`)  
 
 ---
+# Figures from Chapman et al. 2025. 
+
+If you would like to reproduce all of the figures from our supermodeling manuscript. Please see [this repository](https://github.com/WillyChap/Chapman_2024_GMD)
+Which contains all of the code to reproduce every figure exactly. 
+
+
 
 ## **Contributing & Support**  
 
