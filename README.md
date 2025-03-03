@@ -209,8 +209,8 @@ chmod +x init_supermodel.py buildmodels.py
 ---
 # Figures from Chapman et al. 2025. 
 
-If you would like to reproduce all of the figures from our supermodeling manuscript. Please see [this repository](https://github.com/WillyChap/Chapman_2024_GMD)
-Which contains all of the code to reproduce every figure exactly. 
+If you would like to reproduce all of the figures from our supermodeling manuscript. Please see [this repository,](https://github.com/WillyChap/Chapman_2024_GMD)
+which contains all of the code to reproduce every figure exactly. 
 
 
 
